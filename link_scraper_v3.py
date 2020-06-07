@@ -8,7 +8,9 @@ Created on Wed Jun  3 19:49:15 2020
 Output lists : 
 
 all_links - contains all the links with titles 
-linkswithlocations - contains gofunme links with title, organizer name, city details
+linkswithlocations - contains gofundme links with title, organizer name, city details
+
+to access each link, put in a loop and get one by one : linkswithlocations[n]
 
 '''
 
