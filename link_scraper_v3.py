@@ -4,7 +4,13 @@ Created on Wed Jun  3 19:49:15 2020
 
 @author: mpenm
 """
+'''
+Output lists : 
 
+all_links - contains all the links with titles 
+linkswithlocations - contains gofunme links with title, organizer name, city details
+
+'''
 
 import requests
 from bs4 import BeautifulSoup
