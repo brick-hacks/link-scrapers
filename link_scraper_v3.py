@@ -10,9 +10,9 @@ import requests
 from bs4 import BeautifulSoup
 
 global datamain
-datamain =[]
+all_links =[]
 invalidlinks = []
-locations = []
+linkswithlocations = []
 gofundmelinks =[]
 
 placestoscrape = ['petitions','more','victims','bail','business','org','other','resources']  #list of pages to sctrape within the website
@@ -28,10 +28,10 @@ def start_scrape(page):
       
     for row in table.findAll('ul', attrs = {'class':'buttons'}): 
         data = {} 
-        data['text'] = row.find('a').contents[0]
+        data['title'] = row.find('a').contents[0]
         data['url'] = row.a['href'] 
-        datamain.append(data)     
-    return datamain                # list containing the data
+        all_links.append(data)     
+    return all_links                # list containing the data
 
 # runs the scraping script
 def scrape_eachlink(link):
@@ -40,24 +40,26 @@ def scrape_eachlink(link):
     soup = BeautifulSoup(req.content,"html5lib")
      
     table = soup.find('div', attrs = {'class': 'm-campaign-members-main-organizer'})#section id - html element to look for when scraping
-      
-    for row in table.findAll('div', attrs = {'class':'m-person-info-content'}):
+    table1 = soup.find('header', attrs = {'class': 'p-campaign-header'})  
+    for hd in table1.findAll('h1', attrs = {'class':'a-campaign-title'}):
         loc = {}
-        loc['link'] = link
-        loc['city'] = row.findAll('div', attrs = {'class':'text-small'})[1].contents[0]
-        for nm in table.findAll('div', attrs = {'class':'m-person-info-name'}):
-            loc['organizer_name'] = nm.contents[0]
-        locations.append(loc)  
-    return locations
+        loc['title'] = hd.contents[0]      
+        for row in table.findAll('div', attrs = {'class':'m-person-info-content'}):
+            loc['link'] = link
+            loc['city'] = row.findAll('div', attrs = {'class':'text-small'})[-1].contents[0]
+            for nm in table.findAll('div', attrs = {'class':'m-person-info-name'}):
+                loc['organizer_name'] = nm.contents[0]
+            linkswithlocations.append(loc)  
+    return linkswithlocations
 
 
 for sec in placestoscrape:
     start_scrape(sec)
 
 # gets the links that are invalid (starting with #)    
-for i in range(len(datamain)):
-    urlstr = datamain[i]['url']
-    substr = datamain[i]['url'][0]
+for i in range(len(all_links)):
+    urlstr = all_links[i]['url']
+    substr = all_links[i]['url'][0]
     if substr == '#':
         invalidlinks.append(i)
         
@@ -65,16 +67,16 @@ for i in range(len(datamain)):
 
 l = 0
 for j in invalidlinks:
-    del datamain[j-l]
+    del all_links[j-l]
     l = l+1
         
-for k in range(len(datamain)):
-    linkstr = datamain[k]['url']
-    linksubstr = datamain[k]['url'][12:20]
+for k in range(len(all_links)):
+    linkstr = all_links[k]['url']
+    linksubstr = all_links[k]['url'][12:20]
     if linksubstr == 'gofundme':
         gofundmelinks.append(linkstr)    
         
 
 for glink in gofundmelinks:
     scrape_eachlink(glink)    
-    
+
